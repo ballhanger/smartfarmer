@@ -104,7 +104,7 @@
             </div>
         </div>
 
-        <div class="bg-cyan-50 rounded-2xl shadow-sm border border-cyan-100 overflow-hidden mb-12">
+        <div class="bg-cyan-50 rounded-2xl shadow-sm border border-cyan-100 overflow-hidden mb-8">
             <div class="p-6 border-b border-cyan-200 bg-cyan-100/30">
                 <h3 class="text-lg font-bold flex items-center text-cyan-950">
                     <svg class="w-5 h-5 mr-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
@@ -128,6 +128,16 @@
                 </table>
             </div>
         </div>
+
+        <div class="bg-rose-50 rounded-2xl shadow-sm border border-rose-100 p-6 mb-12">
+            <h3 class="text-lg font-bold mb-6 flex items-center border-b border-rose-200 pb-3 text-rose-900">
+                <svg class="w-5 h-5 mr-2 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                ปัญหาและอุปสรรคในการดำเนินงาน
+            </h3>
+            <div id="issues-container">
+                </div>
+        </div>
+
     </div>
 
     <script>
@@ -137,7 +147,6 @@
         // 📌 2. กำหนดไตรมาสปัจจุบัน (เปลี่ยนเป็น 1, 2, 3 หรือ 4 ตามช่วงเวลาจริง)
         const currentQuarter = 2;
 
-        // ฟังก์ชันอ่าน CSV อย่างปลอดภัย
         function fetchCSVData(url) {
             return new Promise((resolve, reject) => {
                 Papa.parse(url, {
@@ -161,7 +170,6 @@
             return "bg-slate-100 text-slate-600 border-slate-300";
         };
 
-        // ฟังก์ชันดึงตัวเลขจากคอลัมน์ ป้องกันปัญหาเว้นวรรคผิด
         const getSafeNum = (row, keyStr) => {
             let val = row[keyStr] || row[keyStr + " "] || "0";
             return parseFloat(String(val).replace(/,/g, '')) || 0;
@@ -186,13 +194,13 @@
                         actualQ2: getSafeNum(row, "ผลไตรมาส 2"),
                         planQ3: getSafeNum(row, "แผนไตรมาส 3"),
                         planQ4: getSafeNum(row, "แผนไตรมาส 4"),
-                        status: row["สถานะไตรมาส 2"] || row["สถานะไตรมาส 1"] || "❌ ยังไม่ดำเนินการ"
+                        status: row["สถานะไตรมาส 2"] || row["สถานะไตรมาส 1"] || "❌ ยังไม่ดำเนินการ",
+                        // ดึงข้อมูลปัญหาจากคอลัมน์ใหม่
+                        issue: row["ปัญหาและอุปสรรค"] || row["ปัญหาและอุปสรรค "] || ""
                     };
                 }).filter(act => act.name !== "-" && !act.name.includes("โครงการพัฒนาทักษะ"));
 
-                // ==========================================
                 // คำนวณภาพรวมจาก "กิจกรรม KPI" เท่านั้น
-                // ==========================================
                 const kpiActivities = activities.filter(act => act.name.includes("(KPI)"));
 
                 const totalTarget = kpiActivities.reduce((sum, act) => sum + act.target, 0);
@@ -206,29 +214,23 @@
                 const planQ3 = kpiActivities.reduce((sum, act) => sum + act.planQ3, 0);
                 const planQ4 = kpiActivities.reduce((sum, act) => sum + act.planQ4, 0);
 
-                // เช็กสถานะตามเงื่อนไข (100=ตามแผน, 50-99=ล่าช้า, 0.01-49=เสี่ยง, 0=เช็กไตรมาส)
                 let projectStatus = "";
                 const p = parseFloat(percentCum);
 
-                if (p >= 100) {
-                    projectStatus = "🟢 เป็นไปตามแผน";
-                } else if (p >= 50.00 && p <= 99.99) {
-                    projectStatus = "🟡 ล่าช้า";
-                } else if (p >= 0.01 && p <= 49.99) {
-                    projectStatus = "🔴 เสี่ยง";
-                } else {
+                if (p >= 100) projectStatus = "🟢 เป็นไปตามแผน";
+                else if (p >= 50.00 && p <= 99.99) projectStatus = "🟡 ล่าช้า";
+                else if (p >= 0.01 && p <= 49.99) projectStatus = "🔴 เสี่ยง";
+                else {
                     if (currentQuarter === 1) projectStatus = "⚪ มีแผนอยู่ใน Q2/Q3/Q4";
                     else if (currentQuarter === 2) projectStatus = "⚪ มีแผนอยู่ใน Q3/Q4";
                     else if (currentQuarter === 3) projectStatus = "⚪ มีแผนอยู่ใน Q4";
                     else projectStatus = "❌ ยังไม่ดำเนินการ";
                 }
 
-                // นำไปแสดงผล
                 document.getElementById('project-name').textContent = "โครงการพัฒนาทักษะและแนวคิดผู้ประกอบการธุรกิจเกษตร (Smart Farmer)";
                 document.getElementById('kpi-target').innerHTML = `${formatNum(totalTarget)} <span class="text-xl font-medium text-indigo-700/70">ราย</span>`;
                 document.getElementById('kpi-actual').innerHTML = `${formatNum(totalActual)} <span class="text-xl font-medium text-emerald-700/70">ราย</span>`;
                 
-                // กราฟวงกลม
                 const pieChart = document.getElementById('pie-chart');
                 document.getElementById('pie-percent').textContent = percentCum + '%';
                 
@@ -245,7 +247,6 @@
                 statusEl.textContent = projectStatus;
                 statusEl.className = `inline-flex items-center justify-center px-8 py-4 rounded-2xl text-2xl font-bold border-2 shadow-sm w-full sm:w-auto bg-white ${getStatusStyles(projectStatus)}`;
 
-                // กราฟแท่งรายไตรมาส
                 const qData = [
                     { name: 'ไตรมาส 1', plan: planQ1, actual: actualQ1, showActual: true, actualColor: 'bg-[#0ea5e9]' },
                     { name: 'ไตรมาส 2', plan: planQ1 + planQ2, actual: actualQ1 + actualQ2, showActual: true, actualColor: 'bg-[#16a34a]' },
@@ -283,13 +284,10 @@
                 });
 
                 setTimeout(() => {
-                    document.querySelectorAll('.bar-chart-col').forEach(bar => {
-                        bar.style.height = bar.getAttribute('data-h') + '%';
-                    });
+                    document.querySelectorAll('.bar-chart-col').forEach(bar => { bar.style.height = bar.getAttribute('data-h') + '%'; });
                     document.querySelectorAll('.opacity-0').forEach(text => { text.classList.remove('opacity-0'); });
                 }, 100);
 
-                // ตารางกิจกรรม (แสดงทั้งหมด)
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '';
                 activities.forEach(act => {
@@ -342,13 +340,58 @@
                 });
 
                 setTimeout(() => {
-                    document.querySelectorAll('#table-body .bar-chart-col').forEach(bar => {
-                        bar.style.width = bar.getAttribute('data-h') + '%';
-                    });
-                    document.querySelectorAll('#table-body .bar-chart-col-text').forEach(textEl => {
-                        textEl.style.left = textEl.getAttribute('data-left') + '%';
-                    });
+                    document.querySelectorAll('#table-body .bar-chart-col').forEach(bar => { bar.style.width = bar.getAttribute('data-h') + '%'; });
+                    document.querySelectorAll('#table-body .bar-chart-col-text').forEach(textEl => { textEl.style.left = textEl.getAttribute('data-left') + '%'; });
                 }, 100);
+
+                // ==========================================
+                // สร้างส่วน: ปัญหาและอุปสรรค
+                // ==========================================
+                let issuesHtml = '';
+                
+                // ถ้าระดับโครงการภาพรวมมีความล่าช้า/เสี่ยง ให้แสดงกรอบสีแดงด้านบน
+                if (projectStatus.includes("ล่าช้า") || projectStatus.includes("เสี่ยง")) {
+                    issuesHtml += `
+                        <div class="bg-white border-l-4 border-red-500 p-5 rounded-r-xl shadow-sm mb-6">
+                            <h4 class="font-bold text-red-800 mb-2 flex items-center">ภาพรวมโครงการ (สถานะ ${projectStatus})</h4>
+                            <p class="text-sm text-red-700 leading-relaxed">ผลการดำเนินงานรวมของกิจกรรมหลัก (KPI) อยู่ในเกณฑ์ล่าช้า/เสี่ยง จึงต้องเร่งรัดการจัดกิจกรรมและติดตามแก้ไขปัญหาในพื้นที่อย่างใกล้ชิด</p>
+                        </div>
+                    `;
+                }
+
+                // กรองเฉพาะกิจกรรมที่มีปัญหา หรือ มีการกรอกช่องปัญหาใน Sheets ไว้
+                const problematicActivities = activities.filter(a => a.status.includes("ล่าช้า") || a.status.includes("เสี่ยง") || a.status.includes("ยังไม่ดำเนินการ") || a.issue.trim() !== "");
+                
+                if (problematicActivities.length > 0) {
+                    issuesHtml += `<h4 class="font-bold text-rose-950 mb-3 text-base">รายกิจกรรมที่มีความล่าช้า/ปัญหา</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                    problematicActivities.forEach(act => {
+                        // ถ้าใน Sheets ไม่ได้กรอกไว้ จะขึ้นข้อความอัตโนมัตินี้
+                        const issueText = act.issue.trim() !== "" ? act.issue : "อยู่ระหว่างตรวจสอบและรวบรวมสาเหตุการดำเนินงานจากหน่วยปฏิบัติ";
+                        
+                        let statusColor = "text-slate-600 bg-slate-50 border-slate-200";
+                        if (act.status.includes("เสี่ยง")) statusColor = "text-red-700 bg-red-50 border-red-200";
+                        else if (act.status.includes("ล่าช้า")) statusColor = "text-yellow-700 bg-yellow-50 border-yellow-200";
+                        else if (act.status.includes("ยังไม่ดำเนินการ") || act.status.includes("ไม่มี")) statusColor = "text-white bg-red-600 border-red-800 shadow-sm animate-pulse";
+                        
+                        const displayName = act.name.replace("(KPI)", '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 mr-1">(KPI)</span>');
+
+                        issuesHtml += `
+                            <div class="border border-rose-200 rounded-xl p-4 bg-white flex flex-col hover:shadow-md transition-shadow">
+                                <div class="mb-3"><span class="text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}">${act.status}</span></div>
+                                <h5 class="text-sm font-bold text-rose-950 mb-3 leading-relaxed">${displayName}</h5>
+                                <div class="bg-rose-50/50 p-3 rounded-lg border border-rose-100 flex-grow">
+                                    <p class="text-sm text-rose-900 leading-relaxed"><span class="font-semibold text-rose-950">สาเหตุ/อุปสรรค:</span> ${issueText}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    issuesHtml += `</div>`;
+                } else {
+                    // ถ้าทุกอย่างผ่านฉลุย
+                    issuesHtml = `<div class="bg-white p-6 rounded-xl border border-rose-100 text-center text-rose-500 font-medium shadow-sm">ไม่พบปัญหาหรือความเสี่ยงในการดำเนินงาน ณ ปัจจุบัน ทุกกิจกรรมดำเนินการได้ตามแผน</div>`;
+                }
+
+                document.getElementById('issues-container').innerHTML = issuesHtml;
 
             } catch (error) {
                 console.error("Error Detail:", error);
