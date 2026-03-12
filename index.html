@@ -186,10 +186,8 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // โหลดข้อมูล
                 const rawData = await fetchCSVData(CSV_URL);
                 
-                // จัดเตรียม Array ของกิจกรรม
                 const activities = rawData.map((row, index) => {
                     return {
                         id: index + 1,
@@ -208,7 +206,6 @@
                     };
                 }).filter(act => act.name !== "-" && !act.name.includes("โครงการพัฒนาทักษะ"));
 
-                // คำนวณภาพรวมจาก "กิจกรรม KPI" เท่านั้น
                 const kpiActivities = activities.filter(act => act.name.includes("(KPI)"));
 
                 const totalTarget = kpiActivities.reduce((sum, act) => sum + act.target, 0);
@@ -297,7 +294,7 @@
                 }, 100);
 
                 // ==========================================
-                // สร้างส่วน: การ์ดสรุปสถานะกิจกรรมทั้งหมด
+                // สร้างส่วน: การ์ดสรุปสถานะกิจกรรมทั้งหมด (ปรับป้ายเกณฑ์ให้เด่นขึ้น)
                 // ==========================================
                 const summary = {
                     total: activities.length,
@@ -309,36 +306,48 @@
                 };
 
                 document.getElementById('summary-cards').innerHTML = `
-                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col justify-center text-center border-2 border-slate-200 shadow-sm">
+                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col text-center border-2 border-slate-200 shadow-sm">
                         <p class="text-sm font-bold text-slate-500 mb-1">กิจกรรมทั้งหมด</p>
-                        <p class="text-4xl font-extrabold text-slate-800 mb-1">${summary.total}</p>
-                        <p class="text-[10px] text-slate-400 leading-tight">รวมทุกสถานะ</p>
+                        <p class="text-4xl font-extrabold text-slate-800 mb-3">${summary.total}</p>
+                        <div class="mt-auto">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 w-full whitespace-nowrap">รวมทุกสถานะ</span>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-green-200 text-center shadow-sm">
+                    <div class="bg-white rounded-xl p-4 flex flex-col border-2 border-green-200 text-center shadow-sm">
                         <p class="text-sm font-bold text-green-700 mb-1">เป็นไปตามแผน</p>
-                        <p class="text-4xl font-extrabold text-green-700 mb-1">${summary.onTrack}</p>
-                        <p class="text-[10px] text-green-600/70 font-medium leading-tight">ร้อยละผลงาน &ge; 100</p>
+                        <p class="text-4xl font-extrabold text-green-700 mb-3">${summary.onTrack}</p>
+                        <div class="mt-auto">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-green-800 bg-green-100 px-3 py-1 rounded-full border border-green-300 w-full whitespace-nowrap">ร้อยละผลงาน &ge; 100</span>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-yellow-300 text-center shadow-sm">
+                    <div class="bg-white rounded-xl p-4 flex flex-col border-2 border-yellow-300 text-center shadow-sm">
                         <p class="text-sm font-bold text-yellow-600 mb-1">ล่าช้า</p>
-                        <p class="text-4xl font-extrabold text-yellow-600 mb-1">${summary.delayed}</p>
-                        <p class="text-[10px] text-yellow-600/70 font-medium leading-tight">ร้อยละผลงาน 50.00-99.99</p>
+                        <p class="text-4xl font-extrabold text-yellow-600 mb-3">${summary.delayed}</p>
+                        <div class="mt-auto">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-400 w-full whitespace-nowrap">ร้อยละ 50.00 - 99.99</span>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-red-200 text-center shadow-sm">
+                    <div class="bg-white rounded-xl p-4 flex flex-col border-2 border-red-200 text-center shadow-sm">
                         <p class="text-sm font-bold text-red-600 mb-1">เสี่ยง</p>
-                        <p class="text-4xl font-extrabold text-red-600 mb-1">${summary.atRisk}</p>
-                        <p class="text-[10px] text-red-500/70 font-medium leading-tight">ร้อยละผลงาน 0.01-49.99</p>
+                        <p class="text-4xl font-extrabold text-red-600 mb-3">${summary.atRisk}</p>
+                        <div class="mt-auto">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-red-800 bg-red-100 px-2 py-1 rounded-full border border-red-300 w-full whitespace-nowrap">ร้อยละ 0.01 - 49.99</span>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-red-400 text-center shadow-sm relative overflow-hidden">
+                    <div class="bg-white rounded-xl p-4 flex flex-col border-2 border-red-400 text-center shadow-sm relative overflow-hidden">
                         <div class="absolute inset-0 bg-red-50 opacity-50 animate-pulse"></div>
                         <p class="text-sm font-bold text-red-700 mb-1 relative z-10">ยังไม่ดำเนินการ</p>
-                        <p class="text-4xl font-extrabold text-red-700 mb-1 relative z-10">${summary.notStartedSevere}</p>
-                        <p class="text-[10px] text-red-700/70 font-medium leading-tight relative z-10">ร้อยละผลงาน = 0</p>
+                        <p class="text-4xl font-extrabold text-red-700 mb-3 relative z-10">${summary.notStartedSevere}</p>
+                        <div class="mt-auto relative z-10">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-white bg-red-600 px-3 py-1 rounded-full shadow-sm w-full whitespace-nowrap">ร้อยละผลงาน = 0</span>
+                        </div>
                     </div>
-                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col justify-center text-center border-2 border-slate-200 border-dashed shadow-sm">
+                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col text-center border-2 border-slate-200 border-dashed shadow-sm">
                         <p class="text-sm font-bold text-slate-400 mb-1">มีแผนในไตรมาสถัดไป</p>
-                        <p class="text-4xl font-extrabold text-slate-400 mb-1">${summary.notStarted}</p>
-                        <p class="text-[10px] text-slate-400 leading-tight">ยังไม่ถึงช่วงแผนงาน</p>
+                        <p class="text-4xl font-extrabold text-slate-400 mb-3">${summary.notStarted}</p>
+                        <div class="mt-auto">
+                            <span class="inline-block text-xs sm:text-sm font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-full border border-slate-200 w-full whitespace-nowrap">ยังไม่ถึงช่วงแผนงาน</span>
+                        </div>
                     </div>
                 `;
 
