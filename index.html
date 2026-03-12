@@ -45,22 +45,26 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-indigo-50 rounded-2xl shadow-sm border border-indigo-100 p-6 flex items-center justify-center relative border-l-4 border-l-indigo-500">
-                <div class="text-center z-10">
-                    <p class="text-sm font-bold text-indigo-800/70 mb-2">(เป้าหมายจาก พรบ.69 เฉพาะ KPI)</p>
+            <div class="bg-indigo-50 rounded-2xl shadow-sm border border-indigo-100 p-6 flex flex-col relative border-l-4 border-l-indigo-500 min-h-[160px]">
+                <div class="w-full text-left z-10 mb-2">
+                    <p class="text-base font-bold text-indigo-900">เป้าหมายโครงการ <span class="text-sm font-medium text-indigo-700/80">(เป้าหมายจาก พรบ.69 เฉพาะ KPI)</span></p>
+                </div>
+                <div class="w-full flex-grow flex items-center justify-center z-10 pb-2">
                     <h2 class="text-5xl font-extrabold text-indigo-950" id="kpi-target">-</h2>
                 </div>
-                <div class="bg-indigo-100 p-4 rounded-full absolute right-6 opacity-30 hidden sm:block">
+                <div class="bg-indigo-100 p-4 rounded-full absolute right-6 top-1/2 -translate-y-1/2 opacity-30 hidden sm:block pointer-events-none">
                     <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
             </div>
 
-            <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 p-6 flex items-center justify-center relative border-l-4 border-l-emerald-500">
-                <div class="text-center z-10">
-                    <p class="text-sm font-bold text-emerald-800/70 mb-2">ผลการดำเนินงานสะสม (เฉพาะ KPI)</p>
+            <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 p-6 flex flex-col relative border-l-4 border-l-emerald-500 min-h-[160px]">
+                <div class="w-full text-left z-10 mb-2">
+                    <p class="text-base font-bold text-emerald-900">ผลการดำเนินงานสะสม <span class="text-sm font-medium text-emerald-700/80">(เฉพาะ KPI)</span></p>
+                </div>
+                <div class="w-full flex-grow flex items-center justify-center z-10 pb-2">
                     <h2 class="text-5xl font-extrabold text-emerald-950" id="kpi-actual">-</h2>
                 </div>
-                <div class="bg-emerald-100 p-4 rounded-full absolute right-6 opacity-30 hidden sm:block">
+                <div class="bg-emerald-100 p-4 rounded-full absolute right-6 top-1/2 -translate-y-1/2 opacity-30 hidden sm:block pointer-events-none">
                     <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
                 </div>
             </div>
