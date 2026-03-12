@@ -104,6 +104,15 @@
             </div>
         </div>
 
+        <div class="bg-amber-100 rounded-2xl shadow-md border border-amber-300 p-6 mb-8">
+            <h3 class="text-lg font-bold mb-6 flex items-center border-b border-amber-300 pb-3 text-amber-950">
+                <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                ภาพรวมสถานะกิจกรรมทั้งหมด (อ้างอิงไตรมาสปัจจุบัน)
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="summary-cards">
+                </div>
+        </div>
+
         <div class="bg-cyan-50 rounded-2xl shadow-sm border border-cyan-100 overflow-hidden mb-8">
             <div class="p-6 border-b border-cyan-200 bg-cyan-100/30">
                 <h3 class="text-lg font-bold flex items-center text-cyan-950">
@@ -195,7 +204,6 @@
                         planQ3: getSafeNum(row, "แผนไตรมาส 3"),
                         planQ4: getSafeNum(row, "แผนไตรมาส 4"),
                         status: row["สถานะไตรมาส 2"] || row["สถานะไตรมาส 1"] || "❌ ยังไม่ดำเนินการ",
-                        // ดึงข้อมูลปัญหาจากคอลัมน์ใหม่
                         issue: row["ปัญหาและอุปสรรค"] || row["ปัญหาและอุปสรรค "] || ""
                     };
                 }).filter(act => act.name !== "-" && !act.name.includes("โครงการพัฒนาทักษะ"));
@@ -288,6 +296,55 @@
                     document.querySelectorAll('.opacity-0').forEach(text => { text.classList.remove('opacity-0'); });
                 }, 100);
 
+                // ==========================================
+                // สร้างส่วน: การ์ดสรุปสถานะกิจกรรมทั้งหมด
+                // ==========================================
+                const summary = {
+                    total: activities.length,
+                    onTrack: activities.filter(a => a.status.includes("เป็นไปตามแผน")).length,
+                    delayed: activities.filter(a => a.status.includes("ล่าช้า")).length,
+                    atRisk: activities.filter(a => a.status.includes("เสี่ยง")).length,
+                    notStartedSevere: activities.filter(a => a.status.includes("ยังไม่ดำเนินการ") || a.status.includes("ไม่มี")).length,
+                    notStarted: activities.filter(a => a.status.includes("มีแผนอยู่ใน")).length,
+                };
+
+                document.getElementById('summary-cards').innerHTML = `
+                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col justify-center text-center border-2 border-slate-200 shadow-sm">
+                        <p class="text-sm font-bold text-slate-500 mb-1">กิจกรรมทั้งหมด</p>
+                        <p class="text-4xl font-extrabold text-slate-800 mb-1">${summary.total}</p>
+                        <p class="text-[10px] text-slate-400 leading-tight">รวมทุกสถานะ</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-green-200 text-center shadow-sm">
+                        <p class="text-sm font-bold text-green-700 mb-1">เป็นไปตามแผน</p>
+                        <p class="text-4xl font-extrabold text-green-700 mb-1">${summary.onTrack}</p>
+                        <p class="text-[10px] text-green-600/70 font-medium leading-tight">ร้อยละผลงาน &ge; 100</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-yellow-300 text-center shadow-sm">
+                        <p class="text-sm font-bold text-yellow-600 mb-1">ล่าช้า</p>
+                        <p class="text-4xl font-extrabold text-yellow-600 mb-1">${summary.delayed}</p>
+                        <p class="text-[10px] text-yellow-600/70 font-medium leading-tight">ร้อยละผลงาน 50.00-99.99</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-red-200 text-center shadow-sm">
+                        <p class="text-sm font-bold text-red-600 mb-1">เสี่ยง</p>
+                        <p class="text-4xl font-extrabold text-red-600 mb-1">${summary.atRisk}</p>
+                        <p class="text-[10px] text-red-500/70 font-medium leading-tight">ร้อยละผลงาน 0.01-49.99</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 flex flex-col justify-center border-2 border-red-400 text-center shadow-sm relative overflow-hidden">
+                        <div class="absolute inset-0 bg-red-50 opacity-50 animate-pulse"></div>
+                        <p class="text-sm font-bold text-red-700 mb-1 relative z-10">ยังไม่ดำเนินการ</p>
+                        <p class="text-4xl font-extrabold text-red-700 mb-1 relative z-10">${summary.notStartedSevere}</p>
+                        <p class="text-[10px] text-red-700/70 font-medium leading-tight relative z-10">ร้อยละผลงาน = 0</p>
+                    </div>
+                    <div class="col-span-2 md:col-span-1 bg-white rounded-xl p-4 flex flex-col justify-center text-center border-2 border-slate-200 border-dashed shadow-sm">
+                        <p class="text-sm font-bold text-slate-400 mb-1">มีแผนในไตรมาสถัดไป</p>
+                        <p class="text-4xl font-extrabold text-slate-400 mb-1">${summary.notStarted}</p>
+                        <p class="text-[10px] text-slate-400 leading-tight">ยังไม่ถึงช่วงแผนงาน</p>
+                    </div>
+                `;
+
+                // ==========================================
+                // ตารางกิจกรรม
+                // ==========================================
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '';
                 activities.forEach(act => {
@@ -349,7 +406,6 @@
                 // ==========================================
                 let issuesHtml = '';
                 
-                // ถ้าระดับโครงการภาพรวมมีความล่าช้า/เสี่ยง ให้แสดงกรอบสีแดงด้านบน
                 if (projectStatus.includes("ล่าช้า") || projectStatus.includes("เสี่ยง")) {
                     issuesHtml += `
                         <div class="bg-white border-l-4 border-red-500 p-5 rounded-r-xl shadow-sm mb-6">
@@ -359,13 +415,11 @@
                     `;
                 }
 
-                // กรองเฉพาะกิจกรรมที่มีปัญหา หรือ มีการกรอกช่องปัญหาใน Sheets ไว้
                 const problematicActivities = activities.filter(a => a.status.includes("ล่าช้า") || a.status.includes("เสี่ยง") || a.status.includes("ยังไม่ดำเนินการ") || a.issue.trim() !== "");
                 
                 if (problematicActivities.length > 0) {
                     issuesHtml += `<h4 class="font-bold text-rose-950 mb-3 text-base">รายกิจกรรมที่มีความล่าช้า/ปัญหา</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
                     problematicActivities.forEach(act => {
-                        // ถ้าใน Sheets ไม่ได้กรอกไว้ จะขึ้นข้อความอัตโนมัตินี้
                         const issueText = act.issue.trim() !== "" ? act.issue : "อยู่ระหว่างตรวจสอบและรวบรวมสาเหตุการดำเนินงานจากหน่วยปฏิบัติ";
                         
                         let statusColor = "text-slate-600 bg-slate-50 border-slate-200";
@@ -387,7 +441,6 @@
                     });
                     issuesHtml += `</div>`;
                 } else {
-                    // ถ้าทุกอย่างผ่านฉลุย
                     issuesHtml = `<div class="bg-white p-6 rounded-xl border border-rose-100 text-center text-rose-500 font-medium shadow-sm">ไม่พบปัญหาหรือความเสี่ยงในการดำเนินงาน ณ ปัจจุบัน ทุกกิจกรรมดำเนินการได้ตามแผน</div>`;
                 }
 
